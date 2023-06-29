@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+	<meta content="initial-scale=1, maximum-scale=1,
+		user-scalable=0" name="viewport" />
+	<meta name="viewport" content="width=device-width" />
+
+	<!-- Datatable plugin CSS file -->
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+
+	<!-- jQuery library file -->
+	<script type="text/javascript"
+			src="https://code.jquery.com/jquery-3.5.1.js">
+	</script>
+
+	<!-- Datatable plugin JS library file -->
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="col-12 mt-2">
+		<div class="float-right">
+			<a href="@Url.Action("Index", "Home")" id="btnBack" class="btn btn-sm btn-danger">Back To Home</a>
+		</div>
+	</div>
+	<br />
+	<br />
+	<div class="col-6">
+		<form id="frmProduct" method="post" action="@Url.Action("Save","Home")" enctype="multipart/form-data">
+			<div class="form-group row">
+				<label for="ProductCode" class="col-sm-2 col-form-label">Kode Barang</label>
+				<div class="col-sm-10">
+					<input type="hidden" id="productId" name="productId" value="@ViewBag.ProductId" />
+					<input type="text" class="form-control" id="productCode" name="productCode" value="@ViewBag.ProductCode" />
+					<span id="msgProductCode" style="color:red"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="ProductName" class="col-sm-2 col-form-label">Nama Barang</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="productName" name="prodcutName" value="@ViewBag.ProductName" />
+					<span id="msgProductName" style="color:red"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="prodcutQty" class="col-sm-2 col-form-label">Jumlah</label>
+				<div class="col-sm-10">
+					<input type="number" class="form-control" id="productQty" name="prodcutQty" value="@ViewBag.ProductQty" />
+					<span id="msgProductQty" style="color:red"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="ProductDate" class="col-sm-2 col-form-label">Tanggal</label>
+				<div class="col-sm-10">
+					<input type="date" class="form-control" id="productDate" name="productDate" value="@ViewBag.ProductDate" />
+					<span id="msgProductDate" style="color:red"></span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<div class="col-sm-10">
+					<button id="btnSave" type="button" class="btn btn-primary">Save</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			$('#btnSave').click(function(){
+				if (validateForm()){
+					save();
+				}
+			});
+			
+		});
+
+		function validateForm(){
+			var isValid = false;
+			var productCode = $('#productCode').val();
+			var productName = $('#productName').val();
+			var productQty = $('#productQty').val();
+			var productDate = $('#productDate').val();
+
+			$('#msgProductCode').html('');
+			$('#msgProductName').html('');
+			$('#msgProductQty').html('');
+			$('#msgProductDate').html('');
+
+			if(productCode == ''){
+				isValid = false;
+				$('#msgProductCode').html("Product Code is empty!");
+			}else if (productName == '') {
+				isValid = false;
+				$('#msgProductName').html("Product Name is empty!");
+			}else if (productQty == '') {
+				isValid = false;
+				$('#msgProductQty').html("Product Qty is empty!");
+			} else if (parseInt(productQty) < 0) {
+				isValid = false;
+				$('#msgProductQty').html("Product Qty must be equal or greater than zero!");
+			} else if (productDate == '' || productDate == undefined) {
+				isValid = false;
+				$('#msgProductDate').html("Product Date is empty!");
+			}else {
+				isValid = true;
+			}
+			return isValid;
+		}
+
+		function save(){
+			var productId = $('#productId').val();
+			var productCode = $('#productCode').val();
+			var productName = $('#productName').val();
+			var productQty = $('#productQty').val();
+			var productDate = $('#productDate').val();
+
+			$('#msgProductCode').html('');
+			$('#msgProductName').html('');
+			$('#msgProductQty').html('');
+			$('#msgProductDate').html('');
+
+			$.ajax({
+				type: "GET",
+				url: '@Url.Action("Save", "Home")',
+				data: {
+					productId: productId,
+					productCode: productCode,
+					productName: productName,
+					productQty: productQty,
+					productDate: productDate
+				},
+				success: function (response) {
+					if (response.type == "Success") {
+						window.alert('Product has been succesfully Saved!');
+						window.location.href = '@Url.Action("Index", "Home")';
+					}else{
+						if (response.type == "ProductCode"){
+							$('#msgProductCode').html(response.message);
+						}else if(response.type == "ProductName"){
+							$('#msgProductName').html(response.message);
+						}
+					}
+				},
+				error: function (response) {
+					alert(response.responseText);
+				}
+			});
+		}
+	</script>
+</body>
+
+</html>

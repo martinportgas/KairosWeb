@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+	<meta content="initial-scale=1, maximum-scale=1,
+		user-scalable=0" name="viewport" />
+	<meta name="viewport" content="width=device-width" />
+
+	<!-- Datatable plugin CSS file -->
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+
+	<!-- jQuery library file -->
+	<script type="text/javascript"
+			src="https://code.jquery.com/jquery-3.5.1.js">
+	</script>
+
+	<!-- Datatable plugin JS library file -->
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js">
+	</script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+	<div class="col-12 mt-2">
+		<div class="form-row">
+			<div class="col">
+			</div>
+			<div class="col">
+			</div>
+			<div class="col">
+			</div>
+			<div class="col">
+				<div class="float-right">
+					<a href="@Url.Action("Add", "Home")" id="btnAdd" class="btn btn-sm btn-primary">Add Product</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-12 ">
+		<div class="form-row">
+			<div class="col">
+				<label>Kode Barang</label>
+				<input type="text" class="form-control" id="searchKodeBarang" placeholder="Search">
+			</div>
+			<div class="col">
+				<label>Nama Barang</label>
+				<input type="text" class="form-control" id="searchNamaBarang" placeholder="Search">
+			</div>
+			<div class="col">
+				<label>Jumlah</label>
+				<input type="number" class="form-control" id="searchJumlahBarang" placeholder="Search">
+			</div>
+			<div class="col">
+				<label>Tanggal</label>
+				<input type="date" class="form-control" id="searchTanggalBarang" placeholder="Search">
+			</div>
+		</div>
+	</div>
+	<div class="col-12 mt-2">
+		<div class="form-row">
+			<div class="col">
+			</div>
+			<div class="col">
+			</div>
+			<div class="col">
+			</div>
+			<div class="col">
+				<div class="float-right">
+					<button type="button" class="btn btn-sm btn-secondary" id="btnSearch">Search</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br /><br />
+	<div class="col-12">
+		<table id="tblProduct" class="table table-hovered" style="width:100%">
+			<thead>
+				<tr>
+					<th>Kode Produk</th>
+					<th>Nama Produk</th>
+					<th>Jumlah</th>
+					<th>Tanggal</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			</tbody>
+		</table>
+	</div>
+	
+	
+
+	<script>
+		
+		$(document).ready(function () {
+			var dataTable =	$.ajax({
+				type: "GET",
+				url: '@Url.Action("GetData", "Home")',
+				success: function (response) {
+					$('#tblProduct').DataTable({
+						data: response,
+						columns: [
+							{ data: 'productCode' },
+							{ data: 'productName' },
+							{ data: 'productQty' },
+							{ data: 'productDate' },
+							{
+								data: "productId",
+								render: function (data, type, row, meta) {
+									var edit = `<a class="btn btn-sm btn-warning" href="@Url.Action("Edit", "Home", new { Id = -1 })">Update</a>`;
+									edit = edit.replace("-1", row.productId);
+
+									var remove = `<a class="btn btn-sm btn-primary" onclick="return DeleteConfirmation()" href="@Url.Action("Delete", "Home", new { Id = -1 })">Remove</a>`;
+									remove = remove.replace("-1", row.productId);
+
+									var JoinButton = edit.concat(" ", remove);
+									return JoinButton;
+								}
+							}
+						]
+					});
+					$('.dataTables_filter').hide();
+				},
+				error: function (response) {
+					alert(response.responseText);
+				}
+			});
+
+			$('#btnSearch').click(function(){
+				filterProductCode();
+				filterProductName();
+				filterProductQty();
+				filterProductDate();
+			});
+			
+
+		});
+
+		function DeleteConfirmation() {
+			if (confirm('Are you sure you want to delete this data?')){
+				alert("Data has been successfully Removed");
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+
+		function filterProductCode() {
+			$('#tblProduct').DataTable().columns(0).search(
+				$("input[id=searchKodeBarang]").val()
+			).draw();
+		}
+		function filterProductName() {
+			$('#tblProduct').DataTable().columns(1).search(
+				$("input[id=searchNamaBarang]").val()
+			).draw();
+		}
+		function filterProductQty() {
+			$('#tblProduct').DataTable().columns(2).search(
+				$("input[id=searchJumlahBarang]").val()
+			).draw();
+		}
+		function filterProductDate() {
+			$('#tblProduct').DataTable().columns(3).search(
+				$("input[id=searchTanggalBarang]").val()
+			).draw();
+		}
+	</script>
+</body>
+
+</html>
